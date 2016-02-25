@@ -205,8 +205,8 @@ var loadData = function(marker) {
 
 Then I added bootstrap; some styles and some knockout bindings to my html to end up with this:
 
-picture
-picture
+![image](walktr1.png)
+![image](walktr2.png)
 
 So far I had the whole frame of the site set up. There is a goggle map with markers pinned on my locations. There is listview of my model that changes the view with the bindings I've got set up with KO. There is a searchbar with no functionality. I've got the skeleton of a wiki Ajax request in my app.js file. 
 
