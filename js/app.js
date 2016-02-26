@@ -89,14 +89,16 @@ var ViewModel = function() {
     this.currentTrail = ko.observable(this.trailList()[0]);
 
     this.selectTrail = function(selectedTrail) {
-      self.currentTrail(selectedTrail);
+      this.currentTrail(selectedTrail);
     };
 
-    self.markerList = ko.observableArray([]);
+    //self.markerList = ko.observableArray([]);
 
-    self.infoWindowList = ko.observableArray([]);
+    //self.infoWindowList = ko.observableArray([]);
 
-
+    selectTrailbyMarker = function() {
+      alert('click');
+    };
 
       var initializeMap = function() {
       $("#mapDiv").append('<div id="map"></div>');
@@ -107,6 +109,7 @@ var ViewModel = function() {
         mapTypeId: google.maps.MapTypeId.TERRAIN,
         disableDefaultUI: true
        });
+      var lastInfoWindow = null;
 
         initialTrails.forEach(function(trail){
           var marker = new google.maps.Marker({
@@ -114,17 +117,34 @@ var ViewModel = function() {
               position: new google.maps.LatLng(trail.lat, trail.lng),
               title: trail.name,
               clickable: true,
+              class: 'markerElement',
               animation: google.maps.Animation.DROP
           });
-          self.markerList.push(marker);
+          //self.markerList.push(marker);
           var contentString = '<p><b>'+trail.name+'</b><br>'+trail.address+'</p>';
           var infowindow = new google.maps.InfoWindow({
             content: contentString
           });
-          self.infoWindowList.push(infowindow);
+          //self.infoWindowList.push(infowindow);
           marker.addListener('click', function() {
+            if (lastInfoWindow === infowindow) {
+              lastInfoWindow = null;
+              toggleBounce();
+              infowindow.close();
+              } else {
+                  lastInfoWindow = infowindow;
+                  toggleBounce();
                   infowindow.open(map, marker);
+                  selectTrailbyMarker();
+              }
           });
+          function toggleBounce() {
+            if (marker.getAnimation() !== null) {
+              marker.setAnimation(null);
+            } else {
+              marker.setAnimation(google.maps.Animation.BOUNCE);
+            }
+          }
         });
       };
   initializeMap();
