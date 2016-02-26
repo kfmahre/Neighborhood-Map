@@ -1,4 +1,3 @@
-
 var initialTrails = [
       {
     name: "Kennesaw Mountain Trail",
@@ -14,7 +13,7 @@ var initialTrails = [
     description: "This course is a real challenge and completing it is a huge confidence builder! This run is all uphill up a mountain road for the first half, and then back downhill for the second half. There are some very sightworthy views from the road under certian conditions.",
     trailMapUrl: "https://www.google.com/maps/d/embed?mid=zQIhibTo9Q34.k2ExBAbfkAX0&hl=en",
     lat: "33.98515",
-    lng: "84.58278"
+    lng: "-84.58278"
       },
       {
     name: "Noses Creek Trail",
@@ -42,35 +41,9 @@ var initialTrails = [
       }
       ];
 
-var Trail = function(data) {
-  this.name = ko.observable(data.name);
-  this.address = ko.observable(data.address);
-  this.description = ko.observable(data.description);
-  this.trailMapUrl = ko.observable(data.trailMapUrl);
-  this.lat = ko.observable(data.lat);
-  this.lng = ko.observable(data.lng);
-};
-
-var ViewModel = function() {
-  var self = this;
-
-  this.trailList = ko.observableArray([]);
-
-  initialTrails.forEach(function(trailItem){
-    self.trailList.push(new Trail(trailItem));
-  });
-
-  this.currentTrail = ko.observable(self.trailList()[0]);
-
-  this.trails = ko.observableArray(initialTrails);
-
-  this.selectTrail = function(selectedTrail) {
-    self.currentTrail(selectedTrail);
-  };
-
 // Wiki Ajax
 
-var loadData = function(marker) {
+var loadData = function() {
     var $wikiElem = $('#wikipedia-links');
     var wikiURL = 'https://en.wikipedia.org/w/api.php?action=opensearch&search='+city+'&format=json&callback=wikiCallback';
 
@@ -94,128 +67,68 @@ var loadData = function(marker) {
     });
 };
 
-var initializeMap = function() {
-
-  var googleMap = '<div id="map"></div>';
-  $("#mapDiv").append(googleMap);
-  //var map;    // declares a global map variable
-  var locations;
-
-  var mapOptions = {
-    //zoom: 18,
-    mapTypeId: google.maps.MapTypeId.TERRAIN,
-    disableDefaultUI: true
-  };
-
-  var map = new google.maps.Map(document.querySelector('#map'), mapOptions);
-
-  var locationFinder = function() {
-
-    var locations = [];
-
-    for (i = 0; i < initialTrails.length; i++) {
-    //var latLng = new google.maps.LatLng(initialTrails[i].lat, initialTrails[i].lng);
-    locations.push(initialTrails[i].address);
-    //locations.push(initialTrails[i].name);
-  };
-    return locations;
-  }
-
-  /*
-  createMapMarker(placeData) reads Google Places search results to create map pins.
-  placeData is the object returned from search results containing information
-  about a single location.
-  */
-   var createMapMarker = function(placeData) {
-
-    // The next lines save location data from the search result object to local variables
-    var lat = placeData.geometry.location.lat();  // latitude from the place service
-    var lon = placeData.geometry.location.lng();  // longitude from the place service
-    var name = placeData.formatted_address;   // name of the place from the place service
-    var bounds = window.mapBounds;            // current boundaries of the map window
-
-    // marker is an object with additional data about the pin for a single location
-    var marker = new google.maps.Marker({
-      map: map,
-      position: placeData.geometry.location,
-      title: Trail.name
-    });
-
-    // infoWindows are the little helper windows that open when you click
-    // or hover over a pin on a map. They usually contain more information
-    // about a location.
-    var infoWindow = new google.maps.InfoWindow({
-      content: name
-    });
-
-    // hmmmm, I wonder what this is about...
-    google.maps.event.addListener(marker, 'click', function() {
-      infoWindow.open(map, marker);
-    });
-
-    // this is where the pin actually gets added to the map.
-    // bounds.extend() takes in a map location object
-    bounds.extend(new google.maps.LatLng(lat, lon));
-    // fit the map to the new marker
-    map.fitBounds(bounds);
-    // center the map
-    map.setCenter(bounds.getCenter());
-  }
-
-  /*
-  callback(results, status) makes sure the search returned results for a location.
-  If so, it creates a new map marker for that location.
-  */
-   var callback = function(results, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      createMapMarker(results[0]);
-    }
-  };
-
-  /*
-  pinPoster(locations) takes in the array of locations created by locationFinder()
-  and fires off Google place searches for each location
-  */
-
-  var pinPoster = function(locations) {
-
-    // creates a Google place search service object. PlacesService does the work of
-    // actually searching for location data.
-    var service = new google.maps.places.PlacesService(map);
-
-    // Iterates through the array of locations, creates a search object for each location
-    for (var place in locations) {
-
-      // the search request object
-      var request = {
-        query: locations[place]
-      };
-
-      // Actually searches the Google Maps API for location data and runs the callback
-      // function with the search results after each search.
-      service.textSearch(request, callback);
-    }
-  }
-
-
-  // Sets the boundaries of the map based on pin locations
-  window.mapBounds = new google.maps.LatLngBounds();
-
-  // locations is an array of location strings returned from locationFinder()
-  locations = locationFinder();
-
-  // pinPoster(locations) creates pins on the map for each location in
-  // the locations array
-  pinPoster(locations);
-
-}
-
-window.addEventListener('load', initializeMap);
-
-window.addEventListener('resize', function(e) {
-map.fitBounds(mapBounds);
-});
-
+var Trail = function(data) {
+    this.name = ko.observable(data.name);
+    this.address = ko.observable(data.address);
+    this.description = ko.observable(data.description);
+    this.trailMapUrl = ko.observable(data.trailMapUrl);
+    this.lat = ko.observable(data.lat);
+    this.lng = ko.observable(data.lng);
 };
+
+var ViewModel = function() {
+
+    var self = this;
+
+    this.trailList = ko.observableArray([]);
+
+    initialTrails.forEach(function(trailItem){
+      self.trailList.push(new Trail(trailItem));
+    });
+
+    this.currentTrail = ko.observable(this.trailList()[0]);
+
+    this.selectTrail = function(selectedTrail) {
+      self.currentTrail(selectedTrail);
+    };
+
+    self.markerList = ko.observableArray([]);
+
+    self.infoWindowList = ko.observableArray([]);
+
+
+
+      var initializeMap = function() {
+      $("#mapDiv").append('<div id="map"></div>');
+
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: new google.maps.LatLng("34.06328", "-84.54868"),
+        zoom: 11,
+        mapTypeId: google.maps.MapTypeId.TERRAIN,
+        disableDefaultUI: true
+       });
+
+        initialTrails.forEach(function(trail){
+          var marker = new google.maps.Marker({
+              map: map,
+              position: new google.maps.LatLng(trail.lat, trail.lng),
+              title: trail.name,
+              clickable: true,
+              animation: google.maps.Animation.DROP
+          });
+          self.markerList.push(marker);
+          var contentString = '<p><b>'+trail.name+'</b><br>'+trail.address+'</p>';
+          var infowindow = new google.maps.InfoWindow({
+            content: contentString
+          });
+          self.infoWindowList.push(infowindow);
+          marker.addListener('click', function() {
+                  infowindow.open(map, marker);
+          });
+        });
+      };
+  initializeMap();
+};
+
 
 ko.applyBindings(new ViewModel());
