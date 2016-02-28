@@ -97,7 +97,7 @@ var ViewModel = function() {
     //self.infoWindowList = ko.observableArray([]);
 
     selectTrailbyMarker = function() {
-      alert('click');
+      console.log('click');
     };
 
       var initializeMap = function() {
@@ -128,14 +128,17 @@ var ViewModel = function() {
           //self.infoWindowList.push(infowindow);
           marker.addListener('click', function() {
             if (lastInfoWindow === infowindow) {
-              lastInfoWindow = null;
               toggleBounce();
               infowindow.close();
+              lastInfoWindow = null;
               } else {
+                  if(lastInfoWindow !== null) {
+                    lastInfoWindow.close();
+                  }
                   lastInfoWindow = infowindow;
                   toggleBounce();
                   infowindow.open(map, marker);
-                  selectTrailbyMarker();
+                  selectTrailbyMarker(); // This is where I'll do whatever selects trail from the aray of trails
               }
           });
           function toggleBounce() {
@@ -143,7 +146,13 @@ var ViewModel = function() {
               marker.setAnimation(null);
             } else {
               marker.setAnimation(google.maps.Animation.BOUNCE);
+              stopAnimation(marker);
             }
+          }
+          function stopAnimation(marker) {
+            setTimeout(function(){
+              marker.setAnimation(null);
+            }, 2200);
           }
         });
       };
