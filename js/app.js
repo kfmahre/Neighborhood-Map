@@ -76,31 +76,7 @@ var Trail = function(data) {
     this.lng = ko.observable(data.lng);
 };
 
-var ViewModel = function() {
-
-    var self = this;
-
-    this.trailList = ko.observableArray([]);
-
-    initialTrails.forEach(function(trailItem){
-      self.trailList.push(new Trail(trailItem));
-    });
-
-    this.currentTrail = ko.observable(this.trailList()[0]);
-
-    this.selectTrail = function(selectedTrail) {
-      this.currentTrail(selectedTrail);
-    };
-
-    //self.markerList = ko.observableArray([]);
-
-    //self.infoWindowList = ko.observableArray([]);
-
-    selectTrailbyMarker = function() {
-      console.log('click');
-    };
-
-      var initializeMap = function() {
+var initializeMap = function() {
       $("#mapDiv").append('<div id="map"></div>');
 
       map = new google.maps.Map(document.getElementById('map'), {
@@ -109,24 +85,29 @@ var ViewModel = function() {
         mapTypeId: google.maps.MapTypeId.TERRAIN,
         disableDefaultUI: true
        });
-      var lastInfoWindow = null;
+      layMarkers();
+};
+var map;
 
+var layMarkers = function() {
+      var lastInfoWindow = null;
         initialTrails.forEach(function(trail){
           var marker = new google.maps.Marker({
               map: map,
               position: new google.maps.LatLng(trail.lat, trail.lng),
               title: trail.name,
               clickable: true,
-              class: 'markerElement',
+              id: 'marker',
               animation: google.maps.Animation.DROP
           });
-          //self.markerList.push(marker);
+
           var contentString = '<p><b>'+trail.name+'</b><br>'+trail.address+'</p>';
-          var infowindow = new google.maps.InfoWindow({
-            content: contentString
-          });
-          //self.infoWindowList.push(infowindow);
+
+          var infowindow = new google.maps.InfoWindow({content: contentString});
+
           marker.addListener('click', function() {
+            ViewModel.searchInput('trail.name');
+            //console.log(searchInput);
             if (lastInfoWindow === infowindow) {
               toggleBounce();
               infowindow.close();
@@ -138,9 +119,9 @@ var ViewModel = function() {
                   lastInfoWindow = infowindow;
                   toggleBounce();
                   infowindow.open(map, marker);
-                  selectTrailbyMarker(); // This is where I'll do whatever selects trail from the aray of trails
               }
           });
+
           function toggleBounce() {
             if (marker.getAnimation() !== null) {
               marker.setAnimation(null);
@@ -148,16 +129,40 @@ var ViewModel = function() {
               marker.setAnimation(google.maps.Animation.BOUNCE);
               stopAnimation(marker);
             }
-          }
+          };
+
           function stopAnimation(marker) {
             setTimeout(function(){
               marker.setAnimation(null);
             }, 2200);
-          }
-        });
-      };
-  initializeMap();
+          };
+
+      });
+};
+
+var searchInput = '';
+
+var ViewModel = function() {
+    var self = this;
+
+    this.trailList = ko.observableArray([]);
+
+    initialTrails.forEach(function(trailItem){
+      self.trailList.push(new Trail(trailItem));
+    });
+
+    this.currentTrail = ko.observable(this.trailList()[0]);
+
+    this.selectTrail = function(selectedTrail) {
+      self.currentTrail(selectedTrail);
+    };
+
+    this.searchInput = ko.observable('');
+
 };
 
 
-ko.applyBindings(new ViewModel());
+$(document).ready(function(){
+  initializeMap();
+  ko.applyBindings(new ViewModel());
+});
