@@ -41,31 +41,9 @@ var initialTrails = [
       }
       ];
 
-// Wiki Ajax
-
-var loadData = function() {
-    var $wikiElem = $('#wikipedia-links');
-    var wikiURL = 'https://en.wikipedia.org/w/api.php?action=opensearch&search='+city+'&format=json&callback=wikiCallback';
-
-    var wikiRequestTimeout = setTimeout(function(){
-        $wikiElem.text("failed to get Wikipedia resources");
-    }, 8000);
-
-    $.ajax(wikiURL, {
-        //url: wikiURL,
-        dataType: "jsonp",
-        // jsonp: "callback",
-        success: function(response) {
-            var articleList = response[1];
-            for (var i = 0; i < articleList.length; i++) {
-                articleStr = articleList[i];
-                var url = 'http://en.wikipedia.org/wiki/' + articleStr;
-                $wikiElem.append('<li><a href="'+url+'">'+articleStr+'</a></li>');
-            };
-            clearTimeout(wikiRequestTimeout);
-        }
-    });
-};
+// Start of ViewModel
+var ViewModel = function() {
+var self = this;
 
 var Trail = function(data) {
     this.name = ko.observable(data.name);
@@ -76,6 +54,22 @@ var Trail = function(data) {
     this.lng = ko.observable(data.lng);
 };
 
+this.trailList = ko.observableArray([]);
+this.mapMarkers = ko.observableArray([]);
+
+initialTrails.forEach(function(trailItem){
+    self.trailList.push(new Trail(trailItem));
+  });
+
+this.currentTrail = ko.observable(this.trailList()[0]);
+this.searchInput = ko.observableArray('');
+
+this.selectTrail = function(selectedTrail) {
+    self.currentTrail(selectedTrail);
+};
+
+
+
 var initializeMap = function() {
       $("#mapDiv").append('<div id="map"></div>');
 
@@ -85,12 +79,14 @@ var initializeMap = function() {
         mapTypeId: google.maps.MapTypeId.TERRAIN,
         disableDefaultUI: true
        });
-      layMarkers();
 };
-var map;
+initializeMap();
+
 
 var layMarkers = function() {
+
       var lastInfoWindow = null;
+
         initialTrails.forEach(function(trail){
           var marker = new google.maps.Marker({
               map: map,
@@ -106,8 +102,9 @@ var layMarkers = function() {
           var infowindow = new google.maps.InfoWindow({content: contentString});
 
           marker.addListener('click', function() {
-            ViewModel.searchInput('trail.name');
-            //console.log(searchInput);
+            self.currentTrail(trail);
+            self.searchInput('');
+            self.searchInput(trail.name);
             if (lastInfoWindow === infowindow) {
               toggleBounce();
               infowindow.close();
@@ -136,33 +133,40 @@ var layMarkers = function() {
               marker.setAnimation(null);
             }, 2200);
           };
-
+          self.mapMarkers.push(new Trail(trail));
       });
 };
+layMarkers();
 
-var searchInput = '';
+// wiki Ajax
 
-var ViewModel = function() {
-    var self = this;
+var loadData = function() {
+    var $wikiElem = $('#wikipedia-links');
+    var wikiURL = 'https://en.wikipedia.org/w/api.php?action=opensearch&search='+city+'&format=json&callback=wikiCallback';
 
-    this.trailList = ko.observableArray([]);
+    var wikiRequestTimeout = setTimeout(function(){
+        $wikiElem.text("failed to get Wikipedia resources");
+    }, 8000);
 
-    initialTrails.forEach(function(trailItem){
-      self.trailList.push(new Trail(trailItem));
+    $.ajax(wikiURL, {
+        //url: wikiURL,
+        dataType: "jsonp",
+        // jsonp: "callback",
+        success: function(response) {
+            var articleList = response[1];
+            for (var i = 0; i < articleList.length; i++) {
+                articleStr = articleList[i];
+                var url = 'http://en.wikipedia.org/wiki/' + articleStr;
+                $wikiElem.append('<li><a href="'+url+'">'+articleStr+'</a></li>');
+            };
+            clearTimeout(wikiRequestTimeout);
+        }
     });
-
-    this.currentTrail = ko.observable(this.trailList()[0]);
-
-    this.selectTrail = function(selectedTrail) {
-      self.currentTrail(selectedTrail);
-    };
-
-    this.searchInput = ko.observable('');
-
 };
+
+}; // end of ViewModel
 
 
 $(document).ready(function(){
-  initializeMap();
   ko.applyBindings(new ViewModel());
 });
