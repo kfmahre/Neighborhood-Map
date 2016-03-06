@@ -50,8 +50,109 @@ var Trail = function(data) {
     this.lng = ko.observable(data.lng);
 };
 
-var map;
+function setInfoWindowContent(marker) {
+
+    var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&limit=1&search='+marker.name+'&format=json&callback=wikiCallback';
+    var wikiRequestTimeout = setTimeout(function() {
+        alert("Rats! Wikipedia could not be loaded."); // Error handler
+    }, 2200);
+    $.ajax({
+        url: wikiUrl,
+        dataType: "jsonp",
+        success: function(response) {
+            var wikiTitle = response[1];
+            //marker.description = response[2];
+            var url = 'http://en.wikipedia.org/wiki/' + wikiTitle;
+            marker.wikipedia = '<li><a href="'+url+'"target="_blank">'+wikiTitle+'</a></li>';
+            //console.log(marker.description);
+            infowindow.setContent("<div id='infoWindow'><b>"+marker.name+"</b><br>"+marker.address+"<br><b>Wikipedia:</b><br>"+marker.wikipedia+"</div>");
+            clearTimeout(wikiRequestTimeout);
+        }
+    });
+};
+
+function getWeatherForcast(marker) {
+    var wundergroundUrl = "http://api.wunderground.com/api/ee01f3177beaf4c5/conditions/q/"+marker.lat+","+marker.lng+".json";
+
+    var wundergroundTimeout = setTimeout(function() {
+        alert("weather underground could not be loaded"); // Error handler
+    }, 4000);
+
+    $.ajax({
+      url: wundergroundUrl,
+
+      dataType: "jsonp",
+      success: function(current_observation) {
+        var current_weather = current_observation['weather'];
+        everything = "<div><b>Current weather:</b><br>"+current_weather+"</div>";
+        $('#infoWindow').append(everything);
+        clearTimeout(wundergroundTimeout);
+      }
+    });
+
+};
+
+
 var searchAutoComplete = ko.observableArray([]);
+
+initMap = function() {
+      $("#mapDiv").append('<div id="map"></div>');
+
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: new google.maps.LatLng("34.06328", "-84.54868"),
+        zoom: 11,
+        mapTypeId: google.maps.MapTypeId.TERRAIN,
+        disableDefaultUI: true
+       });
+
+      infowindow = new google.maps.InfoWindow();
+
+      for (var i=0; i < initialTrails.length; i++) {
+          var trail = initialTrails[i];
+
+          var marker = new google.maps.Marker({
+              map: map,
+              position: new google.maps.LatLng(initialTrails[i].lat, initialTrails[i].lng),
+              title: initialTrails[i].name,
+              clickable: true,
+              animation: google.maps.Animation.DROP,
+              name: initialTrails[i].name,
+              address: initialTrails[i].address
+          });
+          trail.marker = marker;
+          searchAutoComplete.push(trail.name); // Creates an array of all the names of the trails
+
+          //var contentString = '<p><b>'+initialTrails[i].name+'</b><br>'+initialTrails[i].address+'</p>';
+
+          google.maps.event.addListener(marker, 'click', (function(marker, i) {
+
+        return function() {
+              infowindow.open(map, marker);
+              //self.currentTrail(trail);
+              toggleBounce(marker);
+              //self.searchInput(trail.name);
+              setInfoWindowContent(marker, infowindow);
+              getWeatherForcast(marker,infowindow);
+          };
+
+        function toggleBounce(marker) {
+          if (marker.getAnimation() !== null) {
+            marker.setAnimation(null);
+          } else {
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+            stopAnimation(marker);
+          }
+        };
+
+        function stopAnimation(marker) {
+          setTimeout(function(){
+            marker.setAnimation(null);
+          }, 2200);
+        };
+      })(marker, i));
+    }
+  ko.applyBindings(new viewModel());
+};
 
 // Start of viewModel
 var viewModel = function() {
@@ -72,60 +173,7 @@ this.searchInput = ko.observable('');
 
 this.selectTrail = function(selectedTrail) {
     self.currentTrail(selectedTrail);
-};
-
-this.initializeMap = function() {
-      $("#mapDiv").append('<div id="map"></div>');
-
-      map = new google.maps.Map(document.getElementById('map'), {
-        center: new google.maps.LatLng("34.06328", "-84.54868"),
-        zoom: 11,
-        mapTypeId: google.maps.MapTypeId.TERRAIN,
-        disableDefaultUI: true
-       });
-};
-
-
-this.layMarkers = function() {
-        var infowindow = new google.maps.InfoWindow();
-
-        initialTrails.forEach(function(trail){
-
-          var marker = new google.maps.Marker({
-              map: map,
-              position: new google.maps.LatLng(trail.lat, trail.lng),
-              title: trail.name,
-              clickable: true,
-              animation: google.maps.Animation.DROP
-          });
-
-          searchAutoComplete.push(trail.name); // Creates an array of all the names of the trails
-
-          var contentString = '<p><b>'+trail.name+'</b><br>'+trail.address+'</p>';
-
-          google.maps.event.addListener(marker, 'click', function () {
-              self.currentTrail(trail);
-              toggleBounce();
-              self.searchInput(trail.name);
-              infowindow.setContent(contentString);
-              infowindow.open(map, marker);
-          });
-
-          function toggleBounce() {
-            if (marker.getAnimation() !== null) {
-              marker.setAnimation(null);
-            } else {
-              marker.setAnimation(google.maps.Animation.BOUNCE);
-              stopAnimation(marker);
-            }
-          };
-
-          function stopAnimation(marker) {
-            setTimeout(function(){
-              marker.setAnimation(null);
-            }, 2200);
-          };
-      });
+    google.maps.event.trigger(selectedTrail.marker, 'click');
 };
 
 /*
@@ -205,18 +253,17 @@ $("#search").on("keyup", function(event){
 // wiki Ajax
 
 this.loadData = function() {
-
     var $wikiElem = $('#wikipedia-links');
+    $wikiElem.text("");
     var wikiURL = 'https://en.wikipedia.org/w/api.php?action=opensearch&search='+self.searchInput()+'&format=json&callback=wikiCallback';
 
     var wikiRequestTimeout = setTimeout(function(){
         $wikiElem.text("failed to get Wikipedia resources");
     }, 2200);
-    $wikiElem.text("");
+
     $.ajax(wikiURL, {
         url: wikiURL,
         dataType: "jsonp",
-        // jsonp: "callback",
         success: function(response) {
             var articleList = response[1];
             for (var i = 0; i < articleList.length; i++) {
@@ -230,14 +277,10 @@ this.loadData = function() {
 };
 
 // ee01f3177beaf4c5 <<<<<<<<<    Weather Underground API Key todo: add weather data to area of trail
-this.initializeMap();
-this.layMarkers();
+//this.initializeMap();
+//this.layMarkers();
 }; // end of ViewModel
 
 var googleError = function(){
   alert("Google Maps Failed...");
 };
-
-$(document).ready(function(){
-  ko.applyBindings(new viewModel());
-});
