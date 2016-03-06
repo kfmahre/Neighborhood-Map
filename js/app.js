@@ -41,10 +41,6 @@ var initialTrails = [
       }
       ];
 
-// Start of ViewModel
-var ViewModel = function() {
-var self = this;
-
 var Trail = function(data) {
     this.name = ko.observable(data.name);
     this.address = ko.observable(data.address);
@@ -54,23 +50,31 @@ var Trail = function(data) {
     this.lng = ko.observable(data.lng);
 };
 
-this.trailList = ko.observableArray([]);
-this.mapMarkers = ko.observableArray([]);
+var map;
+var searchAutoComplete = ko.observableArray([]);
 
-initialTrails.forEach(function(trailItem){
-    self.trailList.push(new Trail(trailItem));
+// Start of viewModel
+var viewModel = function() {
+
+var self = this;
+
+this.trailList = ko.observableArray([]);
+
+this.markerList = ko.observableArray([]);
+
+initialTrails.forEach(function(trail){
+    self.trailList.push(new Trail(trail));
   });
 
 this.currentTrail = ko.observable(this.trailList()[0]);
-this.searchInput = ko.observableArray('');
+
+this.searchInput = ko.observable('');
 
 this.selectTrail = function(selectedTrail) {
     self.currentTrail(selectedTrail);
 };
 
-
-
-var initializeMap = function() {
+this.initializeMap = function() {
       $("#mapDiv").append('<div id="map"></div>');
 
       map = new google.maps.Map(document.getElementById('map'), {
@@ -80,43 +84,31 @@ var initializeMap = function() {
         disableDefaultUI: true
        });
 };
-initializeMap();
 
 
-var layMarkers = function() {
-
-      var lastInfoWindow = null;
+this.layMarkers = function() {
+        var infowindow = new google.maps.InfoWindow();
 
         initialTrails.forEach(function(trail){
+
           var marker = new google.maps.Marker({
               map: map,
               position: new google.maps.LatLng(trail.lat, trail.lng),
               title: trail.name,
               clickable: true,
-              id: 'marker',
               animation: google.maps.Animation.DROP
           });
 
+          searchAutoComplete.push(trail.name); // Creates an array of all the names of the trails
+
           var contentString = '<p><b>'+trail.name+'</b><br>'+trail.address+'</p>';
 
-          var infowindow = new google.maps.InfoWindow({content: contentString});
-
-          marker.addListener('click', function() {
-            self.currentTrail(trail);
-            self.searchInput('');
-            self.searchInput(trail.name);
-            if (lastInfoWindow === infowindow) {
+          google.maps.event.addListener(marker, 'click', function () {
+              self.currentTrail(trail);
               toggleBounce();
-              infowindow.close();
-              lastInfoWindow = null;
-              } else {
-                  if(lastInfoWindow !== null) {
-                    lastInfoWindow.close();
-                  }
-                  lastInfoWindow = infowindow;
-                  toggleBounce();
-                  infowindow.open(map, marker);
-              }
+              self.searchInput(trail.name);
+              infowindow.setContent(contentString);
+              infowindow.open(map, marker);
           });
 
           function toggleBounce() {
@@ -133,23 +125,96 @@ var layMarkers = function() {
               marker.setAnimation(null);
             }, 2200);
           };
-          self.mapMarkers.push(new Trail(trail));
       });
 };
-layMarkers();
+
+/*
+this.detailsEnabled = ko.observable(false);
+
+this.enableDetails = function() {
+    self.detailsEnabled(true);
+};
+
+this.disableDetails = function() {
+    self.detailsEnabled(false);
+};
+*/
+
+this.initSearch = function() {
+  this.loadData();
+};
+
+// Much obliged to Source: http://www.maxburstein.com/blog/create-your-own-jquery-autocomplete-function/ & at https://gist.github.com/mburst/4575043
+
+//console.log(self.searchAutoComplete());
+
+var trailNames = searchAutoComplete();
+var drew = false;
+var cache = {};
+
+$("#search").on("keyup", function(event){
+
+        //var query = $("#search").val()
+        var query = $("#search").val()
+
+        if($("#search").val().length > 2){
+
+            //Check if we've searched for this term before
+            if(query in cache){
+                results = cache[query];
+            }
+            else{
+                //Case insensitive search for our people array
+                var results = $.grep(trailNames, function(item){
+                    return item.search(RegExp(query, "i")) != -1;
+                });
+
+                //Add results to cache
+                cache[query] = results;
+            }
+            //First search
+            if(drew == false){
+                //Create list for results
+                $("#search").after('<ul id="res"></ul>');
+
+                //Prevent redrawing/binding of list
+                drew = true;
+
+                //Bind click event to list elements in results
+                $("#res").on("click", "li", function(){
+                    $("#search").val($(this).text());
+                    $("#res").empty();
+                 });
+            }
+            //Clear old results
+            else{
+                $("#res").empty();
+            }
+
+            //Add results to the list
+            for(term in results){
+                $("#res").append("<li>" + results[term] + "</li>");
+            }
+        }
+        //Handle backspace/delete so results don't remain with less than 3 characters
+        else if(drew){
+            $("#res").empty();
+        }
+});
 
 // wiki Ajax
 
-var loadData = function() {
+this.loadData = function() {
+
     var $wikiElem = $('#wikipedia-links');
-    var wikiURL = 'https://en.wikipedia.org/w/api.php?action=opensearch&search='+city+'&format=json&callback=wikiCallback';
+    var wikiURL = 'https://en.wikipedia.org/w/api.php?action=opensearch&search='+self.searchInput()+'&format=json&callback=wikiCallback';
 
     var wikiRequestTimeout = setTimeout(function(){
         $wikiElem.text("failed to get Wikipedia resources");
-    }, 8000);
-
+    }, 2200);
+    $wikiElem.text("");
     $.ajax(wikiURL, {
-        //url: wikiURL,
+        url: wikiURL,
         dataType: "jsonp",
         // jsonp: "callback",
         success: function(response) {
@@ -164,9 +229,15 @@ var loadData = function() {
     });
 };
 
+// ee01f3177beaf4c5 <<<<<<<<<    Weather Underground API Key todo: add weather data to area of trail
+this.initializeMap();
+this.layMarkers();
 }; // end of ViewModel
 
+var googleError = function(){
+  alert("Google Maps Failed...");
+};
 
 $(document).ready(function(){
-  ko.applyBindings(new ViewModel());
+  ko.applyBindings(new viewModel());
 });
