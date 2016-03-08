@@ -1,4 +1,8 @@
-var initialTrails = [
+var map;
+
+var Model = function(){
+  var self = this;
+    self.initialTrails = [
       {
     name: "Kennesaw Mountain Trail",
     address: "900 Kennesaw Mountain Dr, Kennesaw Georgia",
@@ -39,7 +43,13 @@ var initialTrails = [
     lat: "34.1546",
     lng: "-84.70299"
       }
-      ];
+      ]
+
+      self.markers = [];
+
+};
+
+var model = new Model();
 
 var Trail = function(data) {
     this.name = ko.observable(data.name);
@@ -48,9 +58,10 @@ var Trail = function(data) {
     this.trailMapUrl = ko.observable(data.trailMapUrl);
     this.lat = ko.observable(data.lat);
     this.lng = ko.observable(data.lng);
+    this.marker = ko.observable(data.marker);
 };
 
-var map;
+//var map; AIzaSyC3YwElxKD41XTrpD9OSgwfypsNLl2jZ2I <:maps key places:>   AIzaSyB_Rt-rO9b-nB8hRWGdPAAQnCyW3qryPyw
 var searchAutoComplete = ko.observableArray([]);
 
 // Start of viewModel
@@ -58,23 +69,36 @@ var viewModel = function() {
 
 var self = this;
 
-this.trailList = ko.observableArray([]);
+self.trailList = ko.observableArray([]);
 
-this.markerList = ko.observableArray([]);
-
-initialTrails.forEach(function(trail){
-    self.trailList.push(new Trail(trail));
-  });
-
-this.currentTrail = ko.observable(this.trailList()[0]);
-
-this.searchInput = ko.observable('');
-
-this.selectTrail = function(selectedTrail) {
-    self.currentTrail(selectedTrail);
+self.initialList = function(initialTrails) {
+    self.initialTrailList = [];
+      for (i = 0; i < initialTrails.length; i++) {
+          var trailName = initialTrails[i].name;
+          self.initialTrailList.push(trailName);
+        }
+      self.trailList = ko.observableArray(self.initialTrailList.slice(0));
 };
 
-this.initializeMap = function() {
+self.initialList(model.initialTrails);
+
+self.currentTrail = ko.observable(self.trailList()[0]);
+
+self.searchInput = ko.observable('');
+
+self.selectTrail = function(selectedTrail) {
+      for (var i = 0; i < model.markers.length; i++) {
+          if (selectedTrail == model.markers[i].name) {
+            clickMarker(i);
+          }
+        }
+  }.bind(this);
+
+var clickMarker = function(name) {
+    google.maps.event.trigger(model.markers[name], 'click');
+  };
+
+var initMap = function() {
       $("#mapDiv").append('<div id="map"></div>');
 
       map = new google.maps.Map(document.getElementById('map'), {
@@ -85,29 +109,33 @@ this.initializeMap = function() {
        });
 };
 
-
-this.layMarkers = function() {
+var layMarkers = function() {
         var infowindow = new google.maps.InfoWindow();
 
-        initialTrails.forEach(function(trail){
+        model.initialTrails.forEach(function(trail){
 
           var marker = new google.maps.Marker({
               map: map,
               position: new google.maps.LatLng(trail.lat, trail.lng),
               title: trail.name,
               clickable: true,
-              animation: google.maps.Animation.DROP
+              animation: google.maps.Animation.DROP,
+              id: trail.name
           });
-
+          marker.name = trail.name;
+          trail.marker = marker;
+          model.markers.push(marker);
           searchAutoComplete.push(trail.name); // Creates an array of all the names of the trails
 
-          var contentString = '<p><b>'+trail.name+'</b><br>'+trail.address+'</p>';
+          //var contentString = '<p><b>'+trail.name+'</b><br>'+trail.address+'</p>';
 
           google.maps.event.addListener(marker, 'click', function () {
               self.currentTrail(trail);
               toggleBounce();
               self.searchInput(trail.name);
-              infowindow.setContent(contentString);
+              getWiki();
+              getWeather();
+              //infowindow.setContent(contentString);
               infowindow.open(map, marker);
           });
 
@@ -125,7 +153,45 @@ this.layMarkers = function() {
               marker.setAnimation(null);
             }, 2200);
           };
-      });
+
+          var getWiki = function(marker) {
+            infowindow.setContent("");
+            var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&limit=1&search='+trail.name+'&format=json&callback=wikiCallback';
+            var wikiRequestTimeout = setTimeout(function() {
+                alert("Rats! Wikipedia could not be loaded."); // Error handler
+            }, 2200);
+            $.ajax({
+                url: wikiUrl,
+                dataType: "jsonp",
+                success: function(response) {
+                    var wikiTitle = response[1];
+                    //marker.description = response[2];
+                    var url = 'http://en.wikipedia.org/wiki/' + wikiTitle;
+                    var wikipediaHTML = '<li><a href="'+url+'"target="_blank">'+wikiTitle+'</a></li>';
+                    //console.log(marker.description);
+                    infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>");
+                    clearTimeout(wikiRequestTimeout);
+                }
+            });
+          };
+
+          var getWeather = function(marker) {
+            var oWeatherAPIkey = "d4cddb89f47216f9226ad28322795461";
+            var openWeatherAPI = "http:/api.openweathermap.org/data/2.5/weather?lat="+trail.lat+"&lon="+trail.lng+"&appid="+oWeatherAPIkey+"";
+
+            $.getJSON(openWeatherAPI, function(data) {
+                var obj = JSON.parse(data);
+                var current_weather = obj.weather[0].main + " " + obj.weather[0].description;
+                everything = "<div><b>Current weather:</b><br>"+current_weather+"</div>";
+                $('#infoWindow').append(everything);
+              }).error(function(e){
+                $('#infoWindow').append('Weather Could Not be Loaded');
+              });
+          };
+
+        });
+
+
 };
 
 /*
@@ -151,14 +217,10 @@ this.initSearch = function() {
 var trailNames = searchAutoComplete();
 var drew = false;
 var cache = {};
-
 $("#search").on("keyup", function(event){
-
         //var query = $("#search").val()
         var query = $("#search").val()
-
         if($("#search").val().length > 2){
-
             //Check if we've searched for this term before
             if(query in cache){
                 results = cache[query];
@@ -168,7 +230,6 @@ $("#search").on("keyup", function(event){
                 var results = $.grep(trailNames, function(item){
                     return item.search(RegExp(query, "i")) != -1;
                 });
-
                 //Add results to cache
                 cache[query] = results;
             }
@@ -176,10 +237,8 @@ $("#search").on("keyup", function(event){
             if(drew == false){
                 //Create list for results
                 $("#search").after('<ul id="res"></ul>');
-
                 //Prevent redrawing/binding of list
                 drew = true;
-
                 //Bind click event to list elements in results
                 $("#res").on("click", "li", function(){
                     $("#search").val($(this).text());
@@ -190,7 +249,6 @@ $("#search").on("keyup", function(event){
             else{
                 $("#res").empty();
             }
-
             //Add results to the list
             for(term in results){
                 $("#res").append("<li>" + results[term] + "</li>");
@@ -205,7 +263,6 @@ $("#search").on("keyup", function(event){
 // wiki Ajax
 
 this.loadData = function() {
-
     var $wikiElem = $('#wikipedia-links');
     var wikiURL = 'https://en.wikipedia.org/w/api.php?action=opensearch&search='+self.searchInput()+'&format=json&callback=wikiCallback';
 
@@ -228,16 +285,11 @@ this.loadData = function() {
         }
     });
 };
-
+// d4cddb89f47216f9226ad28322795461            <<<<<<< open weather API
 // ee01f3177beaf4c5 <<<<<<<<<    Weather Underground API Key todo: add weather data to area of trail
-this.initializeMap();
-this.layMarkers();
+self.map = initMap();
+self.layMarkers = layMarkers();
 }; // end of ViewModel
 
-var googleError = function(){
-  alert("Google Maps Failed...");
-};
 
-$(document).ready(function(){
-  ko.applyBindings(new viewModel());
-});
+ko.applyBindings(new viewModel());
