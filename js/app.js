@@ -168,6 +168,8 @@ var layMarkers = function() {
             }, 2200);
           };
 
+          var wikipediaHTML = '';
+          var everything = '';
           var getWiki = function(marker) {
             infowindow.setContent("");
             var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&limit=1&search='+trail.generalLoc+'&format=json&callback=wikiCallback';
@@ -181,9 +183,9 @@ var layMarkers = function() {
                     var wikiTitle = response[1];
                     //marker.description = response[2];
                     var url = 'http://en.wikipedia.org/wiki/' + wikiTitle;
-                    var wikipediaHTML = '<li><a href="'+url+'"target="_blank">'+wikiTitle+'</a></li>';
+                    wikipediaHTML = '<li><a href="'+url+'"target="_blank">'+wikiTitle+'</a></li>';
                     //console.log(marker.description);
-                    infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>");
+                    infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything);
                     clearTimeout(wikiRequestTimeout);
                 }
             });
@@ -196,8 +198,8 @@ var layMarkers = function() {
               function displayParsedData(data){
                   var obj = JSON.parse(text);
                       var current_weather = obj.weather[0].main + ", " + obj.weather[0].description+", "+obj.main.temp+"K";
-                      var everything = "<div><b>Current weather:</b><br>"+current_weather+"</div>";
-                      $('#infoWindow').append(everything);
+                      everything = "<div><b>Current weather:</b><br>"+current_weather+"</div>";
+                      infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything);
                       }
 
               var text = [];
@@ -207,14 +209,15 @@ var layMarkers = function() {
                   type: 'GET',
                   dataType:"jsonp",
                     success: function(data) {
+                        text = [];
                         //$("#demo").html('<h2>$.ajax</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>');
                         text.push(JSON.stringify(data, null, 2));
                         //console.log(text);
                         displayParsedData(data);
                     },
                     error: function() {
-                        var everything = '<p>Weather Could Not be Loaded</p>'
-                         $('#infoWindow').append(everything);
+                          everything = '<div><p>Weather Could Not be Loaded</p></div>'
+                          infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything);
                         }
                   });
           };
