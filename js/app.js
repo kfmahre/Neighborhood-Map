@@ -193,17 +193,33 @@ var layMarkers = function() {
             var oWeatherAPIkey = "d4cddb89f47216f9226ad28322795461";
             var openWeatherAPI = "http:/api.openweathermap.org/data/2.5/weather?lat="+trail.lat+"&lon="+trail.lng+"&appid="+oWeatherAPIkey+"";
 
-            $.getJSON(openWeatherAPI, function(data) {
-                var obj = JSON.parse(data);
-                var current_weather = obj.weather[0].main + " " + obj.weather[0].description;
-                everything = "<div><b>Current weather:</b><br>"+current_weather+"</div>";
-                $('#infoWindow').append(everything);
-              }).error(function(e){
-                $('#infoWindow').append('Weather Could Not be Loaded');
-              });
+              function displayParsedData(data){
+                  var obj = JSON.parse(text);
+                      var current_weather = obj.weather[0].main + ", " + obj.weather[0].description+", "+obj.main.temp+"K";
+                      var everything = "<div><b>Current weather:</b><br>"+current_weather+"</div>";
+                      $('#infoWindow').append(everything);
+                      }
+
+              var text = [];
+
+              $.ajax({
+                  url: openWeatherAPI,
+                  type: 'GET',
+                  dataType:"jsonp",
+                    success: function(data) {
+                        //$("#demo").html('<h2>$.ajax</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>');
+                        text.push(JSON.stringify(data, null, 2));
+                        //console.log(text);
+                        displayParsedData(data);
+                    },
+                    error: function() {
+                        var everything = '<p>Weather Could Not be Loaded</p>'
+                         $('#infoWindow').append(everything);
+                        }
+                  });
           };
 
-        });
+      });
 
 
 };
