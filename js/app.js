@@ -1,8 +1,6 @@
 var map;
 
-var Model = function(){
-  var self = this;
-    self.initialTrails = [
+initialTrails = [
       {
     name: "Kennesaw Mountain Trail",
     address: "900 Kennesaw Mountain Dr, Kennesaw Georgia",
@@ -59,11 +57,9 @@ var Model = function(){
       }
       ]
 
-      self.markers = [];
+var markers = [];
 
-};
-
-var model = new Model();
+var mapCenter = new google.maps.LatLng("34.06328", "-84.54868");
 
 var Trail = function(data) {
     this.name = ko.observable(data.name);
@@ -75,8 +71,9 @@ var Trail = function(data) {
     this.marker = ko.observable(data.marker);
 };
 
+
 //var map; AIzaSyC3YwElxKD41XTrpD9OSgwfypsNLl2jZ2I <:maps key places:>   AIzaSyB_Rt-rO9b-nB8hRWGdPAAQnCyW3qryPyw
-var searchAutoComplete = ko.observableArray([]);
+var searchAutoComplete = [];
 
 // Start of viewModel
 var viewModel = function() {
@@ -84,6 +81,17 @@ var viewModel = function() {
 var self = this;
 
 self.trailList = ko.observableArray([]);
+
+self.filterSearch = function(typedString) {
+    var typedString = this.searchInput();
+    var markerNameStrings = [];
+      for (var i = 0; i < markers.length; i++) {
+      var markerName = markers[i].name;
+      markerNameStrings.push(markerName);
+      };
+    console.log(markerNameStrings);
+    return true;
+};
 
 self.initialList = function(initialTrails) {
     self.initialTrailList = [];
@@ -94,30 +102,30 @@ self.initialList = function(initialTrails) {
       self.trailList = ko.observableArray(self.initialTrailList.slice(0));
 };
 
-self.initialList(model.initialTrails);
+self.initialList(initialTrails);
 
 self.currentTrail = ko.observable(self.trailList()[0]);
 
 self.searchInput = ko.observable('');
 
 self.selectTrail = function(selectedTrail) {
-      for (var i = 0; i < model.markers.length; i++) {
-          if (selectedTrail == model.markers[i].name) {
+      for (var i = 0; i < markers.length; i++) {
+          if (selectedTrail == markers[i].name) {
             clickMarker(i);
           }
         }
   }.bind(this);
 
 var clickMarker = function(name) {
-    google.maps.event.trigger(model.markers[name], 'click');
+    google.maps.event.trigger(markers[name], 'click');
   };
 
 var initMap = function() {
       $("#mapDiv").append('<div id="map"></div>');
 
       map = new google.maps.Map(document.getElementById('map'), {
-        center: new google.maps.LatLng("34.06328", "-84.54868"),
-        zoom: 11,
+        center: mapCenter,
+        zoom: 10,
         mapTypeId: google.maps.MapTypeId.TERRAIN,
         disableDefaultUI: true
        });
@@ -126,7 +134,7 @@ var initMap = function() {
 var layMarkers = function() {
         var infowindow = new google.maps.InfoWindow();
 
-        model.initialTrails.forEach(function(trail){
+        initialTrails.forEach(function(trail){
 
           var marker = new google.maps.Marker({
               map: map,
@@ -134,23 +142,22 @@ var layMarkers = function() {
               title: trail.name,
               clickable: true,
               animation: google.maps.Animation.DROP,
-              id: trail.name
+              //id: trail.name
           });
           marker.name = trail.name;
-          trail.marker = marker;
-          model.markers.push(marker);
+          //trail.marker = marker;
+          markers.push(marker);
           searchAutoComplete.push(trail.name); // Creates an array of all the names of the trails
 
-          //var contentString = '<p><b>'+trail.name+'</b><br>'+trail.address+'</p>';
 
           google.maps.event.addListener(marker, 'click', function () {
               self.currentTrail(trail);
               toggleBounce();
-              self.searchInput(trail.name);
+              //self.searchInput(trail.name);
               getWiki();
               getWeather();
-              //infowindow.setContent(contentString);
               infowindow.open(map, marker);
+              mapCenter = new google.maps.LatLng(trail.lat, trail.lng);
           });
 
           function toggleBounce() {
@@ -170,22 +177,22 @@ var layMarkers = function() {
 
           var wikipediaHTML = '';
           var everything = '';
+
           var getWiki = function(marker) {
             infowindow.setContent("");
             var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&limit=1&search='+trail.generalLoc+'&format=json&callback=wikiCallback';
             var wikiRequestTimeout = setTimeout(function() {
-                alert("Rats! Wikipedia could not be loaded."); // Error handler
+                wikipediaHTML = '<div><p>Wikipedia Could Not be Loaded</p></div>';
+                infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+"</div>"+everything); // Error handler
             }, 2200);
             $.ajax({
                 url: wikiUrl,
                 dataType: "jsonp",
                 success: function(response) {
                     var wikiTitle = response[1];
-                    //marker.description = response[2];
                     var url = 'http://en.wikipedia.org/wiki/' + wikiTitle;
                     wikipediaHTML = '<li><a href="'+url+'"target="_blank">'+wikiTitle+'</a></li>';
-                    //console.log(marker.description);
-                    infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything);
+                    infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+"</div>"+everything);
                     clearTimeout(wikiRequestTimeout);
                 }
             });
@@ -199,16 +206,16 @@ var layMarkers = function() {
             var temp = '';
 
             var wUndergroundTimeout = setTimeout(function() {
-                everything = '<div><p>Weather Could Not be Loaded</p></div>'
-                infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything); // Error handler
+                everything = '<div><p>Weather Could Not be Loaded</p></div>';
+                infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+"</div>"+everything); // Error handler
             }, 2200);
 
             $.getJSON(wUndergroundUrl, function(data) {
-                console.log(data.current_observation.temp_f);
+                //console.log(data.current_observation.temp_f);
                 current_weather = data.current_observation.weather;
                 temp = data.current_observation.temp_f;
                 everything = "<div><b>Current weather:</b><br>"+current_weather+", "+temp+" F</div>";
-                infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything);
+                infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+"</div>"+everything);
                 clearTimeout(wUndergroundTimeout);
             });
 
@@ -237,8 +244,8 @@ this.initSearch = function() {
 
 // Much obliged to Source: http://www.maxburstein.com/blog/create-your-own-jquery-autocomplete-function/ & at https://gist.github.com/mburst/4575043
 
-//console.log(self.searchAutoComplete());
 
+/*
 var trailNames = searchAutoComplete();
 var drew = false;
 var cache = {};
@@ -284,7 +291,7 @@ $("#search").on("keyup", function(event){
             $("#res").empty();
         }
 });
-
+*/
 // wiki Ajax
 
 this.loadData = function() {
