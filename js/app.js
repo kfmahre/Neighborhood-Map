@@ -192,34 +192,26 @@ var layMarkers = function() {
           };
 
           var getWeather = function(marker) {
-            var oWeatherAPIkey = "d4cddb89f47216f9226ad28322795461";
-            var openWeatherAPI = "http:/api.openweathermap.org/data/2.5/weather?lat="+trail.lat+"&lon="+trail.lng+"&appid="+oWeatherAPIkey+"";
+            var wUndergroundKey = "ee01f3177beaf4c5";
+            var wUndergroundUrl = "http://api.wunderground.com/api/"+wUndergroundKey+"/conditions/q/"+trail.lat+","+trail.lng+".json";
 
-              function displayParsedData(data){
-                  var obj = JSON.parse(text);
-                      var current_weather = obj.weather[0].main + ", " + obj.weather[0].description+", "+obj.main.temp+"K";
-                      everything = "<div><b>Current weather:</b><br>"+current_weather+"</div>";
-                      infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything);
-                      }
+            var current_weather = '';
+            var temp = '';
 
-              var text = [];
+            var wUndergroundTimeout = setTimeout(function() {
+                everything = '<div><p>Weather Could Not be Loaded</p></div>'
+                infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything); // Error handler
+            }, 2200);
 
-              $.ajax({
-                  url: openWeatherAPI,
-                  type: 'GET',
-                  dataType:"jsonp",
-                    success: function(data) {
-                        text = [];
-                        //$("#demo").html('<h2>$.ajax</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>');
-                        text.push(JSON.stringify(data, null, 2));
-                        //console.log(text);
-                        displayParsedData(data);
-                    },
-                    error: function() {
-                          everything = '<div><p>Weather Could Not be Loaded</p></div>'
-                          infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything);
-                        }
-                  });
+            $.getJSON(wUndergroundUrl, function(data) {
+                console.log(data.current_observation.temp_f);
+                current_weather = data.current_observation.weather;
+                temp = data.current_observation.temp_f;
+                everything = "<div><b>Current weather:</b><br>"+current_weather+", "+temp+" F</div>";
+                infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia:</b><br>"+wikipediaHTML+"</div>"+everything);
+                clearTimeout(wUndergroundTimeout);
+            });
+
           };
 
       });
