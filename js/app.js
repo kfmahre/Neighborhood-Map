@@ -83,13 +83,19 @@ var self = this;
 self.trailList = ko.observableArray([]);
 
 self.filterSearch = function(typedString) {
-    var typedString = this.searchInput();
+    var typedString = self.searchInput();
     var markerNameStrings = [];
+    var listString = self.trailList();
       for (var i = 0; i < markers.length; i++) {
       var markerName = markers[i].name;
       markerNameStrings.push(markerName);
       };
-    console.log(markerNameStrings);
+    var results = $.grep(markerNameStrings, function(item){
+                    return item.search(RegExp(typedString, "i")) != -1;
+                });
+    //console.log(markerNameStrings);
+    //console.log(listString);
+    console.log(results);
     return true;
 };
 
