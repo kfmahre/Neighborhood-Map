@@ -81,17 +81,16 @@ self.query = ko.observable('');
 
 self.search = function(value) {
     self.trails.removeAll();
-    console.log(initialTrails.length)
-
-    for (var i = 0; i < markers.length; i++) {
-      markers[i].setVisible(false);
-      }
 
     for(var x in initialTrails) {
 
-      if(initialTrails[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+      if (initialTrails[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
         self.trails.push(initialTrails[x]);
         };
+      };
+
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setVisible(false);
       };
 
     for (var i = 0; i < markers.length; i++) {
@@ -100,26 +99,7 @@ self.search = function(value) {
           };
         };
 
-      if (self.query() === '') {
-
-          for (var i = 0; i < markers.length; i++) {
-          markers[i].setVisible(true);
-        }
-        self.trails = ko.observableArray(initialTrails.slice());
-      }
-};//.bind(this);
-
-/*
-self.initialList = function(initialTrails) {
-    self.initialTrailList = [];
-      for (i = 0; i < initialTrails.length; i++) {
-          var trailName = initialTrails[i].name;
-          self.initialTrailList.push(trailName);
-        }
-      self.trailList = ko.observableArray(self.initialTrailList.slice(0));
 };
-
-self.initialList(initialTrails);*/
 
 self.currentTrail = ko.observable(self.trails()[0]);
 
@@ -248,56 +228,6 @@ this.initSearch = function() {
   this.loadData();
 };
 
-// Much obliged to Source: http://www.maxburstein.com/blog/create-your-own-jquery-autocomplete-function/ & at https://gist.github.com/mburst/4575043
-
-
-/*
-var trailNames = searchAutoComplete();
-var drew = false;
-var cache = {};
-$("#search").on("keyup", function(event){
-        //var query = $("#search").val()
-        var query = $("#search").val()
-        if($("#search").val().length > 2){
-            //Check if we've searched for this term before
-            if(query in cache){
-                results = cache[query];
-            }
-            else{
-                //Case insensitive search for our people array
-                var results = $.grep(trailNames, function(item){
-                    return item.search(RegExp(query, "i")) != -1;
-                });
-                //Add results to cache
-                cache[query] = results;
-            }
-            //First search
-            if(drew == false){
-                //Create list for results
-                $("#search").after('<ul id="res"></ul>');
-                //Prevent redrawing/binding of list
-                drew = true;
-                //Bind click event to list elements in results
-                $("#res").on("click", "li", function(){
-                    $("#search").val($(this).text());
-                    $("#res").empty();
-                 });
-            }
-            //Clear old results
-            else{
-                $("#res").empty();
-            }
-            //Add results to the list
-            for(term in results){
-                $("#res").append("<li>" + results[term] + "</li>");
-            }
-        }
-        //Handle backspace/delete so results don't remain with less than 3 characters
-        else if(drew){
-            $("#res").empty();
-        }
-});
-*/
 // wiki Ajax
 
 this.loadData = function() {
