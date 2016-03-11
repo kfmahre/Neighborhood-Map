@@ -14,4 +14,11 @@ I disabled some additional features that I will bring back in to make this portf
 
 http://kfmahre.github.io/Neighborhood-Map/
 
+## Thanks to:
+http://opensoul.org/2011/06/23/live-search-with-knockoutjs/
 
+
+License
+-------
+
+- This project is licensed under the BSD license. If you find anything here useful, use it, but please note that you found it here!
