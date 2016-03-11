@@ -1,5 +1,3 @@
-var map;
-
 initialTrails = [
       {
     name: "Kennesaw Mountain Trail",
@@ -56,10 +54,8 @@ initialTrails = [
     lng: "-84.517838"
       }
       ]
-
+var map;
 var markers = [];
-
-var mapCenter = new google.maps.LatLng("34.06328", "-84.54868");
 
 var Trail = function(data) {
     this.name = ko.observable(data.name);
@@ -68,12 +64,15 @@ var Trail = function(data) {
     this.trailMapUrl = ko.observable(data.trailMapUrl);
     this.lat = ko.observable(data.lat);
     this.lng = ko.observable(data.lng);
-    this.marker = ko.observable(data.marker);
 };
 
 
 //var map; AIzaSyC3YwElxKD41XTrpD9OSgwfypsNLl2jZ2I <:maps key places:>   AIzaSyB_Rt-rO9b-nB8hRWGdPAAQnCyW3qryPyw
 var searchAutoComplete = [];
+
+//var mapCenter =;
+
+
 
 // Start of viewModel
 var viewModel = function() {
@@ -126,18 +125,7 @@ var clickMarker = function(name) {
     google.maps.event.trigger(markers[name], 'click');
   };
 
-var initMap = function() {
-      $("#mapDiv").append('<div id="map"></div>');
-
-      map = new google.maps.Map(document.getElementById('map'), {
-        center: mapCenter,
-        zoom: 10,
-        mapTypeId: google.maps.MapTypeId.TERRAIN,
-        disableDefaultUI: true
-       });
-};
-
-var layMarkers = function() {
+self.layMarkers = function() {
         var infowindow = new google.maps.InfoWindow();
 
         initialTrails.forEach(function(trail){
@@ -325,9 +313,77 @@ this.loadData = function() {
 };
 // d4cddb89f47216f9226ad28322795461            <<<<<<< open weather API
 // ee01f3177beaf4c5 <<<<<<<<<    Weather Underground API Key todo: add weather data to area of trail
-self.map = initMap();
-self.layMarkers = layMarkers();
+//self.layMarkers = layMarkers();
 }; // end of ViewModel
+var viewM = new viewModel();
 
+ko.applyBindings(viewM);
+//ko.applyBindings(new viewModel());
+//#5cb85c
+//#00ffee
+    var styleArray = [
+    {
+      featureType: "all",
+      elementType: "geometry",
+      stylers: [
+       { hue: "#bfff00" },
+       { saturation: -80 }
+      ]
+    },{
+      featureType: "road.arterial",
+      elementType: "geometry",
+      stylers: [
+        { hue: "#00ffee" },
+        { saturation: 80 }
+      ]
+    },/*{
+      featureType: "road.highway",
+      elementType: "geometry",
+      stylers: [
+        { hue: "#00ffbf" },
+        { saturation: 60 }
+      ]
+    },{
+      featureType: "road.highway.controlled_access",
+      elementType: "geometry",
+      stylers: [
+        { hue: "#00ff80" },
+        { saturation: 0 }
+      ]
+    },*/{
+      featureType: "poi.business",
+      elementType: "labels",
+      stylers: [
+        { visibility: "off" }
+      ]
+    },{
+        featureType: 'water',
+        elementType: 'geometry',
+        stylers: [
+          {hue: "#3380cc"},
+          {saturation: 80},
+          {lightness: 0}
+        ]
+      }
+  ];
 
-ko.applyBindings(new viewModel());
+var mapCenterLat = 34.06328;
+var mapCenterLng = -84.54868;
+
+var mapOptions = {
+        center: {lat:mapCenterLat, lng:mapCenterLng},
+        styles: styleArray,
+        zoom: 10,
+        //mapTypeId: google.maps.MapTypeId.TERRAIN,
+        disableDefaultUI: true
+       };
+
+function initMap() {
+
+      $("#mapDiv").append('<div id="map"></div>');
+
+      map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+      viewM.layMarkers();
+};
+//initMap();
