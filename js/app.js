@@ -1,4 +1,4 @@
-initialTrails = [
+var initialTrails = [
       {
     name: "Kennesaw Mountain Trail",
     address: "900 Kennesaw Mountain Dr, Kennesaw Georgia",
@@ -53,7 +53,8 @@ initialTrails = [
     lat: "33.842162",
     lng: "-84.517838"
       }
-      ]
+      ];
+
 var map;
 var markers = [];
 
@@ -68,36 +69,47 @@ var Trail = function(data) {
 
 
 //var map; AIzaSyC3YwElxKD41XTrpD9OSgwfypsNLl2jZ2I <:maps key places:>   AIzaSyB_Rt-rO9b-nB8hRWGdPAAQnCyW3qryPyw
-var searchAutoComplete = [];
-
-//var mapCenter =;
-
-
 
 // Start of viewModel
 var viewModel = function() {
 
 var self = this;
 
-self.trailList = ko.observableArray([]);
+self.trails = ko.observableArray(initialTrails.slice());
 
-self.filterSearch = function(typedString) {
-    var typedString = self.searchInput();
-    var markerNameStrings = [];
-    var listString = self.trailList();
-      for (var i = 0; i < markers.length; i++) {
-      var markerName = markers[i].name;
-      markerNameStrings.push(markerName);
+self.query = ko.observable('');
+
+self.search = function(value) {
+    self.trails.removeAll();
+    console.log(initialTrails.length)
+
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setVisible(false);
+      }
+
+    for(var x in initialTrails) {
+
+      if(initialTrails[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+        self.trails.push(initialTrails[x]);
+        };
       };
-    var results = $.grep(markerNameStrings, function(item){
-                    return item.search(RegExp(typedString, "i")) != -1;
-                });
-    //console.log(markerNameStrings);
-    //console.log(listString);
-    console.log(results);
-    return true;
-};
 
+    for (var i = 0; i < markers.length; i++) {
+          if (markers[i].name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0) {
+            markers[i].setVisible(true);
+          };
+        };
+
+      if (self.query() === '') {
+
+          for (var i = 0; i < markers.length; i++) {
+          markers[i].setVisible(true);
+        }
+        self.trails = ko.observableArray(initialTrails.slice());
+      }
+};//.bind(this);
+
+/*
 self.initialList = function(initialTrails) {
     self.initialTrailList = [];
       for (i = 0; i < initialTrails.length; i++) {
@@ -107,15 +119,15 @@ self.initialList = function(initialTrails) {
       self.trailList = ko.observableArray(self.initialTrailList.slice(0));
 };
 
-self.initialList(initialTrails);
+self.initialList(initialTrails);*/
 
-self.currentTrail = ko.observable(self.trailList()[0]);
+self.currentTrail = ko.observable(self.trails()[0]);
 
-self.searchInput = ko.observable('');
+
 
 self.selectTrail = function(selectedTrail) {
       for (var i = 0; i < markers.length; i++) {
-          if (selectedTrail == markers[i].name) {
+          if (selectedTrail.name == markers[i].name) {
             clickMarker(i);
           }
         }
@@ -141,7 +153,7 @@ self.layMarkers = function() {
           marker.name = trail.name;
           //trail.marker = marker;
           markers.push(marker);
-          searchAutoComplete.push(trail.name); // Creates an array of all the names of the trails
+          //searchAutoComplete.push(trail.name); // Creates an array of all the names of the trails
 
 
           google.maps.event.addListener(marker, 'click', function () {
@@ -311,11 +323,14 @@ this.loadData = function() {
         }
     });
 };
+
 // d4cddb89f47216f9226ad28322795461            <<<<<<< open weather API
 // ee01f3177beaf4c5 <<<<<<<<<    Weather Underground API Key todo: add weather data to area of trail
 //self.layMarkers = layMarkers();
 }; // end of ViewModel
 var viewM = new viewModel();
+
+viewM.query.subscribe(viewM.search);
 
 ko.applyBindings(viewM);
 //ko.applyBindings(new viewModel());
