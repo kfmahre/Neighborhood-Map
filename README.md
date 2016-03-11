@@ -1,11 +1,17 @@
 # Neighborhood-Map
-OK, This is my version of Udacity's FEND Project-5: Neighborhood Map Project
+This is my version of Udacity's FEND Project-5: Neighborhood Map Project
 
-## Still in progress
+## What it does:
+I have a number of trailhead locations hardcoded into the app.
 
-So far I had the whole frame of the site set up. There is a goggle map with markers pinned on my locations. There is listview of my model that changes the view with the bindings I've got set up with KO. There is a searchbar with no functionality. I've got the skeleton of a wiki Ajax request in my app.js file.
+If you click on a marker or a list item, the marker will bounce and it's infowidow will open displaying the current weather via Weather Underground's API and a wikipedia link on the selected trailhead location.
 
-TODO from this point: Add searchbar filter functionality. Neaten up code & explain what's going on in there.
+If you type into the search field the marker and list will only display the ones who's names match what's typed into the search field.
 
-Also: get a weather API to work
+I disabled some additional features that I will bring back in to make this portfolio ready, but for now I'm focused on getting this project passed in review.
+
+## To run the app go to:
+
+http://kfmahre.github.io/Neighborhood-Map/
+
 
