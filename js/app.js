@@ -65,12 +65,12 @@ var markers = [];
 
 // Trail class - for telling the vM what to do when the trail is changed
 var Trail = function(data) {
-    this.name = ko.observable(data.name);
-    this.address = ko.observable(data.address);
-    this.description = ko.observable(data.description);
-    this.trailMapUrl = ko.observable(data.trailMapUrl);
-    this.lat = ko.observable(data.lat);
-    this.lng = ko.observable(data.lng);
+  this.name = ko.observable(data.name);
+  this.address = ko.observable(data.address);
+  this.description = ko.observable(data.description);
+  this.trailMapUrl = ko.observable(data.trailMapUrl);
+  this.lat = ko.observable(data.lat);
+  this.lng = ko.observable(data.lng);
 };
 
 // Start of ViewModel
@@ -78,160 +78,186 @@ var ViewModel = function() {
 
   var self = this;
 
-  // Takes the value of the initial trails copies them into viewModel.trails ko.observableArray
+  // Takes the value of the initial trails copies them into viewModel.trails
   self.trails = ko.observableArray(initialTrails.slice());
 
   // Input of the search
   self.query = ko.observable('');
 
-  // Search filter function - thanks to Brandon Keepers @ http://opensoul.org/2011/06/23/live-search-with-knockoutjs/
-    self.search = function(value) {
-        infowindow.close();
-        // empties list
-        self.trails.removeAll();
+  // Search filter function -  Thanks to Brandon Keepers for the info @
+  // http://opensoul.org/2011/06/23/live-search-with-knockoutjs/
+  self.search = function(value) {
+    // Closes an infowindow if one is open:
+    infowindow.close();
+    // Empties list:
+    self.trails.removeAll();
 
-        // If the name of an initialTrails item matches the value of what calls this function
-        for(var x in initialTrails) {
+      // If the name of an initialTrails item matches
+      // the value of what calls this function
+      for (var x in initialTrails) {
+        if (initialTrails.hasOwnProperty(x)) {
           if (initialTrails[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
-            self.trails.push(initialTrails[x]); // Put that item back into the list
-            }
+            self.trails.push(initialTrails[x]); // Put that trail back in the list
           }
+        }
+      }
 
-        // Take away all the markers
-        for (var i = 0; i < markers.length; i++) {
-          markers[i].setVisible(false);
-            if (markers[i].name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0) {
-            markers[i].setVisible(true);
-              }
-          }
-
-        /* Put back the ones who's name matches what's inside the search field
-        for (var i = 0; i < markers.length; i++) {
-              if (markers[i].name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0) {
-                markers[i].setVisible(true);
-              };
-            };*/
-
+      for (var i = 0; i < markers.length; i++) {
+        // Take away all the markers:
+        markers[i].setVisible(false);
+        // Put back some:
+        if (markers[i].name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0) {
+          markers[i].setVisible(true);
+        }
+      }
     };
 
   // Sets the current trail - just as we set a current cat in the Cat-Clicker project
   self.currentTrail = ko.observable(self.trails()[0]);
 
-  // When a trail list item is clicked, we go through the index of markers and if it's name matches the selected trail's name
-    self.selectTrail = function(selectedTrail) {
-          for (var i = 0; i < markers.length; i++) {
-              if (selectedTrail.name == markers[i].name) {
-                clickMarker(i); // the function passes it's index item to a click trigger function
-              }
-            }
-      }.bind(this);
+  // When a trail list item is clicked, we go through the index of markers and
+  // if it's name matches the selected trail's name
+  self.selectTrail = function(selectedTrail) {
+
+    for (var i = 0; i < markers.length; i++) {
+      if (selectedTrail.name == markers[i].name) {
+        clickMarker(i);// the function passes it's index item to a function
+      }
+    }
+  }.bind(this);
 
   // Simple click trigger function to activate a marker, used by above selectTrail
   var clickMarker = function(pickMe) {
-      google.maps.event.trigger(markers[pickMe], 'click');
-    };
+    google.maps.event.trigger(markers[pickMe], 'click');
+  };
 
   // Tells the map how to tay the markers
-    self.layMarkers = function() {
-            infowindow = new google.maps.InfoWindow();
+  self.layMarkers = function() {
 
-            // For each initialTrail
-            initialTrails.forEach(function(trail){
+    infowindow = new google.maps.InfoWindow();
 
-              // Make a new marker with these attributes
-              var marker = new google.maps.Marker({
-                  map: map,
-                  position: new google.maps.LatLng(trail.lat, trail.lng),
-                  title: trail.name,
-                  clickable: true,
-                  animation: google.maps.Animation.DROP,
-              });
-              marker.name = trail.name;
+    // For each initialTrail
+    initialTrails.forEach(function(trail){
+      // Make a new marker with these attributes
+      var marker = new google.maps.Marker({
+        map: map,
+        position: new google.maps.LatLng(trail.lat, trail.lng),
+        title: trail.name,
+        clickable: true,
+        animation: google.maps.Animation.DROP,
+        });
+      marker.name = trail.name;
+      // Move those objects into marker array
+      markers.push(marker);
 
-              // Move those objects into marker array
-              markers.push(marker);
+      // Clicking a marker sets that trail as the current trail
+      google.maps.event.addListener(marker, 'click', function () {
+        self.currentTrail(trail);
+        self.query(trail.name); // Makes the list respond to marker clicks
+        toggleBounce();
+        getWiki();
+        getWeather();
+        infowindow.open(map, marker);
+        var newCenter = new google.maps.LatLng(trail.lat, trail.lng);
+        map.panTo(newCenter);
+        map.setZoom(11);
+        });
 
-              // Clicking a marker sets that trail to the current trail and triggers following functions
-              google.maps.event.addListener(marker, 'click', function () {
-                  self.currentTrail(trail);
-                  toggleBounce();
-                  getWiki();
-                  getWeather();
-                  infowindow.open(map, marker);
-                  mapCenter = new google.maps.LatLng(trail.lat, trail.lng);
-              });
+      google.maps.event.addListener(infowindow,'closeclick',function(){
+        self.query('');
+        var newCenter = new google.maps.LatLng(mapCenterLat, mapCenterLng);
+        map.panTo(newCenter);
+        map.setZoom(10);
+      }); // Added this to reset the list when a infowindow is closed
 
-              // Called by a marker click
-              function toggleBounce() {
-                if (marker.getAnimation() !== null) {
-                  marker.setAnimation(null);
-                } else {
-                  marker.setAnimation(google.maps.Animation.BOUNCE); // Tells marker to bounce
-                  stopAnimation(marker); // Calls timeout function
-                }
-              }
+      // Called by a marker click
+      function toggleBounce() {
+        if (marker.getAnimation() !== null) {
+          marker.setAnimation(null);
+          } else {
+            marker.setAnimation(google.maps.Animation.BOUNCE); // Calls bounce
+            stopAnimation(marker); // Timeout function on the bounce
+          }
+        }
 
-              // Simple timeout function to stop the bounce animation of the markers
-              function stopAnimation(marker) {
-                setTimeout(function(){
-                  marker.setAnimation(null);
-                }, 2200);
-              }
+      // Simple timeout function to stop the bounce animation of the markers
+      function stopAnimation(marker) {
+        setTimeout(function(){
+          marker.setAnimation(null);
+          }, 2200);
+        }
 
-              // Variables created to reset the display of data within the marker infowindows
-              var wikipediaHTML = '';
-              var everything = '';
+      // Variables to reset the display of data within the marker infowindows
+      var wikipediaHTML = '';
+      var everything = '';
 
-              // Wikipedia AJAX call
-              var getWiki = function(marker) {
-                infowindow.setContent("");
-                var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&limit=1&search='+trail.generalLoc+'&format=json&callback=wikiCallback';
+      // Wikipedia AJAX call
+      var getWiki = function(marker) {
+        infowindow.setContent("");
+        var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&lim'+
+        'it=1&search='+trail.generalLoc+'&format=json&callback=wikiCallback';
 
-                // Error handler for if wikipedia data can't be obtained - simple timeout
-                var wikiRequestTimeout = setTimeout(function() {
-                    wikipediaHTML = '<div><p>Wikipedia Could Not be Loaded</p></div>';
-                    infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+"</div>"+everything); // Error handler
-                }, 2200);
+        // Error handler if wikipedia data can't be obtained - simple timeout
+        var wikiRequestTimeout = setTimeout(function() {
+          wikipediaHTML = '<div><p>Wikipedia Could Not be Loaded</p></div>';
+          infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+
+            trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+
+            "</div>"+everything); // Error handler
+        }, 2200);
 
-                $.ajax({
-                    url: wikiUrl,
-                    dataType: "jsonp",
-                    success: function(response) {
-                        var wikiTitle = response[1];
-                        var url = 'http://en.wikipedia.org/wiki/' + wikiTitle;
-                        wikipediaHTML = '<li><a href="'+url+'"target="_blank">'+wikiTitle+'</a></li>';
-                        infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+"</div>"+everything);
-                        clearTimeout(wikiRequestTimeout); // Calls timeout function for error handling
-                    }
-                });
-              };
+        $.ajax({
+          url: wikiUrl,
+          dataType: "jsonp",
+          success: function(response) {
+            var wikiTitle = response[1];
 
-              // Weather Underground AJAX call
-              var getWeather = function(marker) {
-                var wUndergroundKey = "ee01f3177beaf4c5";
-                var wUndergroundUrl = "http://api.wunderground.com/api/"+wUndergroundKey+"/conditions/q/"+trail.lat+","+trail.lng+".json";
+            var url = 'http://en.wikipedia.org/wiki/' + wikiTitle;
+            wikipediaHTML = '<li><a href="'+url+'"target="_blank">'+wikiTitle+
+            '</a></li>';
 
-                var current_weather = '';
-                var temp = '';
+            infowindow.setContent("<div id='infoWindow'><b>"+trail.name+
+              "</b><br>"+trail.address+"<br><b>Wikipedia on Location:</b><br>"+
+              wikipediaHTML+"</div>"+everything);
 
-                // Error handler for if weather underground data can't be obtained - simple timeout
-                var wUndergroundTimeout = setTimeout(function() {
-                    everything = '<div><p>Weather Could Not be Loaded</p></div>';
-                    infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+"</div>"+everything); // Error handler
-                }, 2200);
-
-                $.getJSON(wUndergroundUrl, function(data) {
-                    current_weather = data.current_observation.weather;
-                    temp = data.current_observation.temp_f;
-                    everything = "<div><b>Current weather:</b><br>"+current_weather+", "+temp+" F</div>";
-                    infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+"</div>"+everything);
-                    clearTimeout(wUndergroundTimeout); // Calls timeout function for error handling
-                });
-              };
-
+            clearTimeout(wikiRequestTimeout); // Calls timeout for error handler
+            }
           });
-    };
-}; // end of ViewModel
+      };
+      // Weather Underground AJAX call
+      var getWeather = function(marker) {
+        var wUndergroundKey = "ee01f3177beaf4c5";
+        var wUndergroundUrl = "http://api.wunderground.com/api/"+wUndergroundKey+
+        "/conditions/q/"+trail.lat+","+trail.lng+".json";
+
+        var current_weather = '';
+        var temp = '';
+
+        // Error handler if wUnderground data can't be obtained - simple timeout
+        var wUndergroundTimeout = setTimeout(function() {
+          everything = '<div><p>Weather Could Not be Loaded</p></div>';
+          infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+
+            trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+
+            "</div>"+everything); // Error handler
+        }, 2200);
+
+        $.getJSON(wUndergroundUrl, function(data) {
+          current_weather = data.current_observation.weather;
+          temp = data.current_observation.temp_f;
+
+          everything = "<div><b>Current weather:</b><br>"+current_weather+", "+
+          temp+" F</div>";
+
+          infowindow.setContent("<div id='infoWindow'><b>"+trail.name+"</b><br>"+
+            trail.address+"<br><b>Wikipedia on Location:</b><br>"+wikipediaHTML+
+            "</div>"+everything);
+
+          clearTimeout(wUndergroundTimeout); // Calls timeout for error handler
+        });
+      };
+    });
+};
+
+}; // End of ViewModel
 
 // viewM is a new instance of viewModel
 var viewM = new ViewModel();
@@ -242,7 +268,8 @@ viewM.query.subscribe(viewM.search);
 // activates ko bindings on viewM
 ko.applyBindings(viewM);
 
-/* -- This block of code is stashed away for when I'm making this portfolio ready after meeting expectations ---------------------------
+/* Ignore this - This code is stashed away for making this portfolio ready  ----
+
 this.initSearch = function() {
   this.loadData();
 };
@@ -272,7 +299,7 @@ this.loadData = function() {
         }
     });
 };
--------------------------------------------------------------------------------------------------------------------------------------- */
+----------------------------------------------------------------------------- */
 
 // API Keys ---------------------------------------/
 // AIzaSyC3YwElxKD41XTrpD9OSgwfypsNLl2jZ2I < maps
@@ -282,17 +309,17 @@ this.loadData = function() {
 // ------------------------------------------------/
 
 var mapError = function() {
-  $("#mapDiv").append('<h1><b>Google maps cannot be loaded.</b></h1><br><p>Maybe you are offline?</p>');
+  $("#mapDiv").append('<h1><b>Google maps cannot be loaded.</b></h1><br>');
 };
 
-// Map Style Array, for use when we finally call this map we've been talking about for so long
-    var styleArray = [
-    {
+// Map Style Array
+var styleArray = [
+      {
       featureType: "all",
       elementType: "geometry",
       stylers: [
-       { hue: "#bfff00" },
-       { saturation: -80 }
+      { hue: "#bfff00" },
+      { saturation: -80 }
       ]
     },{
       featureType: "road.arterial",
@@ -322,15 +349,15 @@ var mapError = function() {
         { visibility: "off" }
       ]
     },{
-        featureType: 'water',
-        elementType: 'geometry',
-        stylers: [
-          {hue: "#3380cc"},
-          {saturation: 80},
-          {lightness: 0}
-        ]
-      }
-  ];
+      featureType: 'water',
+      elementType: 'geometry',
+      stylers: [
+        {hue: "#3380cc"},
+        {saturation: 80},
+        {lightness: 0}
+      ]
+    }
+];
 
 // In case I want to change the map center in the future I added these variables
 var mapCenterLat = 34.06328;
@@ -338,18 +365,20 @@ var mapCenterLng = -84.54868;
 
 // To make it possible to play with the map more mapOptions
 var mapOptions = {
-                  center: {lat:mapCenterLat, lng:mapCenterLng},
-                  styles: styleArray,
-                  zoom: 10,
-                  disableDefaultUI: true
-                  };
+  center: {lat:mapCenterLat, lng:mapCenterLng},
+  styles: styleArray,
+  zoom: 10,
+  disableDefaultUI: true
+  };
 
-// At last, the map callback! Make the map. --------------------------------------
+// At last, the map callback! Make the map. ------------------------------------
 function initMap() {
-      // I know there's already a div for the map! This method is used for styling
-      $("#mapDiv").append('<div id="map"></div>');
+  // I know there's already a div for the map! This method is used for styling
+  $("#mapDiv").append('<div id="map"></div>');
+  document.getElementById('mapDiv').classList.add('mapDivStyle');
+  document.getElementById('map').classList.add('mapStyle');
 
-      map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
-      viewM.layMarkers(); // Calls the VM laymarkers function
+  map = new google.maps.Map(document.getElementById('map'), mapOptions);
+  // Calls the VM laymarkers function
+  viewM.layMarkers();
 }
