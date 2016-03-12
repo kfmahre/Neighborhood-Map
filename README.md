@@ -10,7 +10,11 @@ If you type into the search field the marker and list will only display the ones
 
 I disabled some additional features that I will bring back in to make this portfolio ready, but for now I'm focused on getting this project passed in review.
 
-## To run the app go to:
+## To run the app:
+
+Download this repository and open index.html
+
+Or - click the link below:
 
 http://kfmahre.github.io/Neighborhood-Map/
 
