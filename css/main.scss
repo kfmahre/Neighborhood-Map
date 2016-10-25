@@ -1,0 +1,236 @@
+/* $breakpoints: $grid-breakpoints; */
+
+/* color variables */
+
+$black: #000000;
+
+$grey-900: #212121;
+
+$grey-800: #424242;
+
+$grey-700: #616161;
+
+$grey-500: #9E9E9E;
+
+$grey-400: #BDBDBD;
+
+$grey-300: #e0e0e0;
+
+$grey-100: #f5f5f5;
+
+$grey-50: #fafafa;
+
+$white: #ffffff;
+
+$primary-900: #1A237E;
+
+$primary-700: #303F9F;
+
+$primary-500: #3F51B5;
+
+$primary-300: #7986CB;
+
+$accent-400: #00B0FF;
+
+$accent-200: #40C4FF;
+
+/** LESS MIX-INS **/
+@mixin box-shadow-inset($x:0, $y:0, $blur:10px, $color:rgba(0,0,0,0.5)){
+  box-shadow:inset $x $y $blur $color;
+  -moz-box-shadow:inset $x $y $blur $color;
+  -webkit-box-shadow:inset $x $y $blur $color;
+  -o-box-shadow:inset $x $y $blur $color;
+  -ms-box-shadow:inset $x $y $blur $color;
+}
+@mixin box-shadow($x:0, $y:0, $blur:10px, $color:rgba(0,0,0,0.5)){
+  box-shadow:$x $y $blur $color;
+  -moz-box-shadow:$x $y $blur $color;
+  -webkit-box-shadow:$x $y $blur $color;
+  -o-box-shadow:$x $y $blur $color;
+  -ms-box-shadow:$x $y $blur $color;
+}
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://example.com/MaterialIcons-Regular.eot); /* For IE6-8 */
+  src: local('Material Icons'),
+       local('MaterialIcons-Regular'),
+       url(https://example.com/MaterialIcons-Regular.woff2) format('woff2'),
+       url(https://example.com/MaterialIcons-Regular.woff) format('woff'),
+       url(https://example.com/MaterialIcons-Regular.ttf) format('truetype');
+}
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;  /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}
+
+/** styles begin **/
+
+.text-thin {
+  font-weight: 300;
+}
+
+.shadow {
+  box-shadow: 3px 3px 6px #212121;
+}
+
+.btn-primary-outline {
+  color: #ffffff;
+  border-color: $accent-200;
+  background-color: $primary-900;
+  border-radius: 0px;
+}
+
+.btn-primary-outline:hover {
+  color: #000000;
+  border-color: $primary-900;
+  background: $accent-200;
+  transition: all linear 0.1s;
+}
+
+.btn-primary-outline:active {
+  color: #ffffff;
+  border-color: $accent-200;
+  background: transparent;
+}
+
+.ng-invalid.ng-dirty {
+  border-color: #fa787e;
+}
+
+.ng-valid.ng-dirty {
+  border-color: #78fa89;
+}
+
+.fade {
+  opacity: 1;
+}
+
+.fade.ng-hide-add, .fade.ng-hide-remove {
+  transition: all linear 0.5s;
+}
+
+.fade.ng-hide {
+  opacity: 0;
+}
+/* Gradients
+/*  background: linear-gradient(to bottom right, $primary-300, $primary-900); /* Standard syntax */
+/*  -webkit-background: -webkit-linear-gradient(left top, $primary-300, $primary-900); /* For Safari 5.1 to 6.0 */
+/*  -o-background: -o-linear-gradient(bottom right, $primary-300, $primary-900); /* For Opera 11.1 to 12.0 */
+/*  -moz-background: -moz-linear-gradient(bottom right, $primary-300, $primary-900); /* For Firefox 3.6 to 15 */
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html,
+body {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+}
+
+.mapStyle {
+  display: block;
+  width: 100%;
+  height: 500px;
+  }
+
+.mapDivStyle {
+  float: left;
+  margin-left: 0;
+  height: 500px;
+}
+
+.listDiv {
+  margin: 5% 0 0 0;
+}
+
+.trailMap {
+  width: 100%;
+  height: 400px;
+}
+
+/*
+.wikipedia-container {
+    float:right;
+    width: 20%;
+    padding: 0;
+    margin-right: 5%;
+    background-color: rgba(255,255,255,0.7);
+}
+*/
+
+
+
+/*==================================================
+=            Bootstrap Media Queries             =
+==================================================*/
+
+  /*==========  Mobile First Method  ==========*/
+
+/* Custom, iPhone Retina */
+
+@media only screen and (min-width : 320px) {
+
+}
+
+/* Extra Small Devices, Phones */
+
+@media only screen and (min-width : 480px) {
+
+body {
+  width: 100%;
+}
+
+}
+
+/* Small Devices, Tablets */
+
+@media only screen and (min-width : 768px) {
+
+body {
+}
+
+/* Medium Devices, Desktops */
+
+@media only screen and (min-width : 992px) {
+
+body {
+}
+
+}
+
+/* Large Devices, Wide Screens */
+
+@media only screen and (min-width : 1200px) {
+
+}
+}
