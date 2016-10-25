@@ -92,7 +92,7 @@ var ViewModel = function() {
     // Empties list:
     self.trails.removeAll();
 
-    if self.query('') {
+    if (self.query('')) {
       var newCenter = new google.maps.LatLng(mapCenterLat, mapCenterLng);
       map.panTo(newCenter);
       map.setZoom(10);
