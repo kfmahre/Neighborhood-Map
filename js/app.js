@@ -92,6 +92,12 @@ var ViewModel = function() {
     // Empties list:
     self.trails.removeAll();
 
+    if self.query('') {
+      var newCenter = new google.maps.LatLng(mapCenterLat, mapCenterLng);
+      map.panTo(newCenter);
+      map.setZoom(10);
+    }
+
       // If the name of an initialTrails item matches
       // the value of what calls this function
       for (var x in initialTrails) {
@@ -302,7 +308,8 @@ this.loadData = function() {
 ----------------------------------------------------------------------------- */
 
 // API Keys ---------------------------------------/
-// AIzaSyC3YwElxKD41XTrpD9OSgwfypsNLl2jZ2I < maps
+// AIzaSyCZKRrC3wU4d34eGhYDOGMXNApFpSDZehY < new maps javascript API key
+// AIzaSyC3YwElxKD41XTrpD9OSgwfypsNLl2jZ2I < maps old key broken
 // AIzaSyB_Rt-rO9b-nB8hRWGdPAAQnCyW3qryPyw < places
 // d4cddb89f47216f9226ad28322795461 < openweather
 // ee01f3177beaf4c5 < Weather Underground API Key
