@@ -87,53 +87,6 @@ $accent-200: #40C4FF;
 
 /** styles begin **/
 
-.text-thin {
-  font-weight: 300;
-}
-
-.shadow {
-  box-shadow: 3px 3px 6px #212121;
-}
-
-.btn-primary-outline {
-  color: #ffffff;
-  border-color: $accent-200;
-  background-color: $primary-900;
-  border-radius: 0px;
-}
-
-.btn-primary-outline:hover {
-  color: #000000;
-  border-color: $primary-900;
-  background: $accent-200;
-  transition: all linear 0.1s;
-}
-
-.btn-primary-outline:active {
-  color: #ffffff;
-  border-color: $accent-200;
-  background: transparent;
-}
-
-.ng-invalid.ng-dirty {
-  border-color: #fa787e;
-}
-
-.ng-valid.ng-dirty {
-  border-color: #78fa89;
-}
-
-.fade {
-  opacity: 1;
-}
-
-.fade.ng-hide-add, .fade.ng-hide-remove {
-  transition: all linear 0.5s;
-}
-
-.fade.ng-hide {
-  opacity: 0;
-}
 /* Gradients
 /*  background: linear-gradient(to bottom right, $primary-300, $primary-900); /* Standard syntax */
 /*  -webkit-background: -webkit-linear-gradient(left top, $primary-300, $primary-900); /* For Safari 5.1 to 6.0 */
@@ -188,7 +141,53 @@ body {
 }
 */
 
+.text-thin {
+  font-weight: 300;
+}
 
+.shadow {
+  box-shadow: 3px 3px 6px #212121;
+}
+
+.btn-primary-outline {
+  color: #ffffff;
+  border-color: $accent-200;
+  background-color: $primary-900;
+  border-radius: 0px;
+}
+
+.btn-primary-outline:hover {
+  color: #000000;
+  border-color: $primary-900;
+  background: $accent-200;
+  transition: all linear 0.1s;
+}
+
+.btn-primary-outline:active {
+  color: #ffffff;
+  border-color: $accent-200;
+  background: transparent;
+}
+
+.ng-invalid.ng-dirty {
+  border-color: #fa787e;
+}
+
+.ng-valid.ng-dirty {
+  border-color: #78fa89;
+}
+
+.fade {
+  opacity: 1;
+}
+
+.fade.ng-hide-add, .fade.ng-hide-remove {
+  transition: all linear 0.5s;
+}
+
+.fade.ng-hide {
+  opacity: 0;
+}
 
 /*==================================================
 =            Bootstrap Media Queries             =
@@ -207,7 +206,7 @@ body {
 @media only screen and (min-width : 480px) {
 
 body {
-  width: 100%;
+
 }
 
 }
@@ -233,4 +232,5 @@ body {
 @media only screen and (min-width : 1200px) {
 
 }
+
 }
