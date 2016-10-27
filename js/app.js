@@ -96,7 +96,6 @@ var ViewModel = function() {
       var newCenter = new google.maps.LatLng(mapCenterLat, mapCenterLng);
       map.panTo(newCenter);
       map.setZoom(10);
-      self.trails.push(initialTrails.slice());
     }
 
       // If the name of an initialTrails item matches
