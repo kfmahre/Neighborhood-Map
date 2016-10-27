@@ -90,9 +90,9 @@ var ViewModel = function() {
     // Closes an infowindow if one is open:
     infowindow.close();
     // Empties list:
-    self.trails.removeAll();
+    self.trails.setVisible(false);
 
-    if (self.query() = '') {
+    if self.query('') {
       var newCenter = new google.maps.LatLng(mapCenterLat, mapCenterLng);
       map.panTo(newCenter);
       map.setZoom(10);
