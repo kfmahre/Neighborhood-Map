@@ -90,14 +90,14 @@ var ViewModel = function() {
     // Closes an infowindow if one is open:
     infowindow.close();
     // Empties list:
-    self.trails.setVisible(false);
-
+    self.trails.removeAll();
+/*
     if self.query('') {
       var newCenter = new google.maps.LatLng(mapCenterLat, mapCenterLng);
       map.panTo(newCenter);
       map.setZoom(10);
     }
-
+*/
       // If the name of an initialTrails item matches
       // the value of what calls this function
       for (var x in initialTrails) {
