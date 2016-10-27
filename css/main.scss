@@ -22,17 +22,17 @@ $grey-50: #fafafa;
 
 $white: #ffffff;
 
-$primary-900: #1A237E;
+$primary-900: #1B5E20;
 
-$primary-700: #303F9F;
+$primary-700: #388E3C;
 
-$primary-500: #3F51B5;
+$primary-500: #4CAF50;
 
-$primary-300: #7986CB;
+$primary-300: #81C784;
 
-$accent-400: #00B0FF;
+$accent-400: #8D6E63;
 
-$accent-200: #40C4FF;
+$accent-200: #BCAAA4;
 
 /** LESS MIX-INS **/
 @mixin box-shadow-inset($x:0, $y:0, $blur:10px, $color:rgba(0,0,0,0.5)){
@@ -106,8 +106,16 @@ body {
   box-sizing: border-box;
 }
 
+html {
+  background: linear-gradient(to bottom right, $primary-900, $primary-300); /* Standard syntax */
+  -webkit-background: -webkit-linear-gradient(left top, $primary-900, $primary-300); /* For Safari 5.1 to 6.0 */
+  -o-background: -o-linear-gradient(bottom right, $primary-900, $primary-300); /* For Opera 11.1 to 12.0 */
+  -moz-background: -moz-linear-gradient(bottom right, $primary-900, $primary-300); /* For Firefox 3.6 to 15 */
+}
+
 body {
   font-family: 'Lato', sans-serif;
+  background: transparent;
 }
 
 .mapStyle {
