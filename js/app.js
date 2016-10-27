@@ -91,13 +91,13 @@ var ViewModel = function() {
     infowindow.close();
     // Empties list:
     self.trails.removeAll();
-
-    if self.search('') {
+/*
+    if self.query('') {
       var newCenter = new google.maps.LatLng(mapCenterLat, mapCenterLng);
       map.panTo(newCenter);
       map.setZoom(10);
     }
-
+*/
       // If the name of an initialTrails item matches
       // the value of what calls this function
       for (var x in initialTrails) {
