@@ -117,7 +117,8 @@ body {
 h1, h2, h3, h4 {
   font-weight: 700;
   color: $white;
-  text-shadow: 2px,2px,5px, $accent-200;
+  text-shadow: 1px 1px 2px $accent-200;
+  opacity: 0.90;
 }
 
 .mapStyle {
