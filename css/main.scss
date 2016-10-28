@@ -30,6 +30,8 @@ $primary-500: #4CAF50;
 
 $primary-300: #81C784;
 
+$accent-900: #3E2723;
+
 $accent-400: #8D6E63;
 
 $accent-200: #BCAAA4;
@@ -140,6 +142,19 @@ h1, h2, h3, h4 {
 .trailMap {
   width: 100%;
   height: 400px;
+}
+
+.list-group a {
+  color: $white;
+  border-color: $accent-400;
+  transition: all linear 0.1s;
+}
+
+.list-group a:hover {
+  color: $black;
+  background: $accent-200;
+  border-color: $accent-400;
+  transition: all linear 0.1s;
 }
 
 /*
