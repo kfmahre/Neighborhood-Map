@@ -114,6 +114,12 @@ body {
   -moz-background: -moz-linear-gradient(bottom right, $primary-900, $primary-300); /* For Firefox 3.6 to 15 */
 }
 
+h1, h2, h3, h4 {
+  font-weight: 700;
+  color: $white;
+  text-shadow: 2px,2px,5px, $accent-200;
+}
+
 .mapStyle {
   display: block;
   width: 100%;
@@ -191,6 +197,13 @@ body {
 
 .fade.ng-hide {
   opacity: 0;
+}
+
+/*
+infowindow styling
+*/
+#infowindow {
+  border: 1px solid $accent-400;
 }
 
 /*==================================================
