@@ -220,8 +220,13 @@ h1, h2, h3, h4 {
 infowindow styling
 */
 #infowindow {
-  border: 1px solid $accent-400;
+  background: $accent-200;
+  border: 1px solid $accent-900;
   border-radius: 0;
+}
+
+#infowindow a {
+  color: #DD2C00;
 }
 
 /*==================================================
