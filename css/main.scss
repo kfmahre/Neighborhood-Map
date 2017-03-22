@@ -22,19 +22,19 @@ $grey-50: #fafafa;
 
 $white: #ffffff;
 
-$primary-900: #1B5E20;
+$primary-900: #33691E;
 
-$primary-700: #388E3C;
+$primary-700: #689F38;
 
-$primary-500: #4CAF50;
+$primary-500: #8BC34A;
 
-$primary-300: #81C784;
+$primary-300: #AED581;
 
-$accent-900: #3E2723;
+$accent-900: #00C853;
 
-$accent-400: #8D6E63;
+$accent-400: #00E676;
 
-$accent-200: #BCAAA4;
+$accent-200: #69F0AE;
 
 /** LESS MIX-INS **/
 @mixin box-shadow-inset($x:0, $y:0, $blur:10px, $color:rgba(0,0,0,0.5)){
