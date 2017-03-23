@@ -16,30 +16,32 @@
 <body class="container-fluid">
 
 	<nav class="navbar sticky-top navbar-inverse bg-inverse">
-		<span><h1>Running Spots</h1><small>An overview of a few good running trails in my region</small></span>
+		<span><h1>Running Spots</h1><small>An overview of a few good running trails in my area</small></span>
 	</nav>
 
-	<section class="card-deck">
-		<div class="card">
-			<div class="card-block">
-				<h4 class="card-title">Map:</h4>
-				<div class="col-xs-12" id="mapDiv">
-				</div>
-			</div>
-		</div>
-		<div class="card">
-			<div class="card-block">
-			<h4 class="card-title">Trails:</h4>
-				<div class="listDiv">
-					<div class="list-group" data-bind="template: {name: 'trail', foreach: trails}">
-						<!--<a href="#" class="list-group-item" id="trailListGroup" data-bind="text: $data, click: $parent.selectTrail"></a>-->
+	<div class="row">
+		<section class="card-deck">
+			<div class="card">
+				<div class="card-block">
+					<h4 class="card-title">Map:</h4>
+					<div class="card-img" id="mapDiv">
 					</div>
 				</div>
 			</div>
-		</div>
-	</section>
+			<div class="card">
+				<div class="card-block">
+				<h4 class="card-title">Trails:</h4>
+					<div class="listDiv">
+						<div class="list-group" data-bind="template: {name: 'trail', foreach: trails}">
+							<!--<a href="#" class="list-group-item" id="trailListGroup" data-bind="text: $data, click: $parent.selectTrail"></a>-->
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
 
-	<div class="row container-fluid">
+	<div class="row">
 		<nav class="navbar navbar-dark bg-inverse">
 			<form class="form-inline float-xs-left" role="search">
 				<div class="input-group">
@@ -79,9 +81,9 @@
 		</div>
 	</div>
 -->
-	<div class="row container-fluid">
-		<footer class="navbar fixed-bottom navbar-inverse bg-inverse">
-			<a class="navbar-inverse" href="http://kfmahre.github.io"><i class="fa fa-fw fa-github"></i> Check out my blog</a>
+	<div class="row">
+		<footer class="navbar sticky-bottom navbar-inverse bg-inverse">
+			<a class="btn btn-success" href="http://kfmahre.github.io"><i class="fa fa-fw fa-github"></i> Check out my blog</a>
 		</footer>
 	</div>
 
