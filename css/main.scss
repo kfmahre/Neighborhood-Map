@@ -178,21 +178,21 @@ h1, h2, h3, h4 {
 }
 
 .btn-primary-outline {
-  color: #ffffff;
-  border-color: $accent-200;
-  background-color: $primary-900;
+  color: $black;
+  background: $accent-400;
+  border-color: $accent-900;
   border-radius: 0px;
 }
 
 .btn-primary-outline:hover {
-  color: #000000;
-  border-color: $primary-900;
+  color: $black;
   background: $accent-200;
+  border-color: $accent-900;
   transition: all linear 0.1s;
 }
 
 .btn-primary-outline:active {
-  color: #ffffff;
+  color: $white;
   border-color: $accent-200;
   background: transparent;
 }
